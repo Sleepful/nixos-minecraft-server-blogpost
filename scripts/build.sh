@@ -7,4 +7,4 @@ echo `ssh-add -L  | grep $KEYNAME` > /public.key
 # finally we build the config and store the path to the derivation in a file,
 # this path is used later to know where to copy the nix build
 nix-build --show-trace \
-  ./nix-files/server.nix >> /store.path
+  ./nix-files/server.nix > /store.path
