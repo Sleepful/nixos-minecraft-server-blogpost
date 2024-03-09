@@ -1,8 +1,9 @@
 root:
-	ssh -o UserKnownHostsFile=/dev/null root@${MC_IP}
+	ssh -o StrictHostKeyChecking=accept-new root@${MC_IP}
+	
 	
 user:
-	ssh -o UserKnownHostsFile=/dev/null jose@${MC_IP}
+	ssh -o StrictHostKeyChecking=accept-new jose@${MC_IP}
 
 build-image:
 	docker build -t nixos/ec2-builder:arm64 . \
