@@ -1,9 +1,17 @@
 root:
 	ssh -o StrictHostKeyChecking=accept-new root@${MC_IP}
 	
-	
 user:
 	ssh -o StrictHostKeyChecking=accept-new jose@${MC_IP}
+
+turn-on:
+	aws ec2 start-instances --no-cli-pager --instance-ids ${MC_INSTANCE_ID}
+
+shut-down:
+	aws ec2 stop-instances --no-cli-pager --instance-ids ${MC_INSTANCE_ID}
+
+status:
+	aws ec2 describe-instances --no-cli-pager --instance-ids ${MC_INSTANCE_ID} | jq -r '.Reservations[].Instances[].State.Name'
 
 build-image:
 	docker build -t nixos/ec2-builder:arm64 . \
