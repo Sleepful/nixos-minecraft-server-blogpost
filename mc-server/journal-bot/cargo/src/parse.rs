@@ -22,6 +22,7 @@ fn filter_noise(msg: &str) -> Option<&str> {
         r"^Using epoll channel type.*",
         r"^Preparing level.*",
         r"^Preparing start region.*",
+        r"^Time elapsed:.*",
     ];
     let res: Vec<bool> = avoid
         .iter()
