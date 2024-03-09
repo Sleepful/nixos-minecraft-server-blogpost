@@ -1,4 +1,3 @@
-use regex::Regex;
 use std::env;
 use std::io::{BufRead, BufReader};
 use std::process::{Command, Stdio};
@@ -7,21 +6,11 @@ use serenity::builder::ExecuteWebhook;
 use serenity::http::Http;
 use serenity::model::webhook::Webhook;
 
+mod parse;
+
 struct ClientData {
     webhook_url: String,
     http: Http,
-}
-
-// we want the messages that look like this:
-// ... [10:18:46] [Server thread/INFO]: ....
-// and we want to grab everything after the colon `:`
-fn parse_message(msg: String) -> Option<String> {
-    let re = Regex::new(r"minecraft-server.*Server thread.INFO.: (.*)").unwrap();
-    let captures = re.captures(&msg);
-    match captures.is_none() {
-        true => None,
-        _ => Some(captures.unwrap()[1].to_string()),
-    }
 }
 
 #[allow(dead_code)]
@@ -44,7 +33,7 @@ async fn listen_to_journalctl(cd: ClientData) {
             println!("EOF"); // we should not get here with journalctl
             break;
         }
-        if let Some(valid_msg) = parse_message(line) {
+        if let Some(valid_msg) = parse::parse_message(line) {
             send_message(&cd, &valid_msg).await;
         }
     }
@@ -95,22 +84,6 @@ async fn main() {
 
 #[cfg(test)]
 mod tests {
-    use regex::Regex;
-    #[test]
-    // Mar 08 10:18:54 MC-Server minecraft-server[970]: [10:18:54] [Worker-Main-1/INFO]: Preparing spawn area: 7%
-    fn regex_match() {
-        let re = Regex::new(r"minecraft-server.*Server thread.INFO.: (.*)").unwrap();
-        let hay = "Mar 08 10:18:54 MC-Server minecraft-server[970]: [10:18:54] [Server thread/INFO]: Done (16.845s)! For help, type help";
-        let caps = re.captures(hay).unwrap();
-        assert_eq!("Done (16.845s)! For help, type help", &caps[1]);
-    }
-    #[test]
-    fn regex_no_match() {
-        let no_hay = "Mar 08 10:18:54 MC-Server minecraft-server[970]: [10:18:54] [Worker-Main-1/INFO]: Preparing spawn area: 7%";
-        let re = Regex::new(r"minecraft-server.*Server thread.INFO.: (.*)").unwrap();
-        let no_caps = re.captures(no_hay);
-        assert!(no_caps.is_none());
-    }
     // $ cargo test -- --nocapture
     // for this test, compile the ./test_cmd app with `cargo build`
     use std::io::{BufRead, BufReader};
