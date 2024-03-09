@@ -1,6 +1,10 @@
 { lib, pkgs, ... }:
 let 
  watcherPkg = pkgs.callPackage ./default.nix {};
+ notEmpty = env:
+    assert env != "";
+    env;
+ discordURL = notEmpty builtins.readFile /env-vars/DISCORD_WEBHOOK_URL;
 in
 {
   # adding the derivation to systemPackages makes it available to us
@@ -21,5 +25,8 @@ in
       ExecStart = "${lib.getExe watcherPkg}";
     };
     path = [ "/run/wrappers" "/run/current-system/sw"];
+    environment = {
+      DISCORD_WEBHOOK_URL = discordURL; 
+    };
   };
 }

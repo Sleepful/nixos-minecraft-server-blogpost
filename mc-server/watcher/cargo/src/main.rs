@@ -1,6 +1,11 @@
-use log::{debug, error, info};
+use log::{error, info};
+use std::env;
 use std::process::{Command, Stdio};
 use std::{process, thread, time};
+
+use serenity::builder::ExecuteWebhook;
+use serenity::http::Http;
+use serenity::model::webhook::Webhook;
 
 mod logger;
 
@@ -53,7 +58,8 @@ fn test_grep() -> bool {
     };
 }
 
-fn shutdown_server() {
+async fn shutdown_server() {
+    send_message("Shutting down server.").await;
     info!("Shut down sequence started.");
     let shutdown = Command::new("sudo")
         .arg("shutdown")
@@ -70,7 +76,21 @@ fn shutdown_server() {
     }
 }
 
-fn main() {
+async fn send_message(message: &str) {
+    let webhook_url =
+        env::var("DISCORD_WEBHOOK_URL").expect("Expected DISCORD_WEBHOOK_URL in the environment");
+    let http = Http::new("");
+    let webhook_url = webhook_url.to_string();
+    let webhook = Webhook::from_url(&http, &webhook_url).await.unwrap();
+    let builder = ExecuteWebhook::new().content(message);
+    let res = webhook.execute(&http, false, builder).await;
+    if let Err(why) = res {
+        eprintln!("Error sending message: {why:?}");
+    };
+}
+
+#[tokio::main]
+async fn main() {
     info!("Minecraft Watcher has launched.");
     let _ = logger::init();
     let mut last_active = time::Instant::now();
@@ -95,7 +115,7 @@ fn main() {
             false => {
                 info!("Zero connections found");
                 if minutes_since_last_active > 15 {
-                    shutdown_server();
+                    shutdown_server().await;
                 };
             }
         };
@@ -105,7 +125,6 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::process::Command;
     use std::{thread, time};
     #[test]
     fn time_greater_than() {

@@ -7,3 +7,5 @@ edition = "2021"
 
 [dependencies]
 log = "0.4.21"
+serenity = "0.12.1"
+tokio = { version = "1.36.0", features = ["macros", "rt-multi-thread"] }
