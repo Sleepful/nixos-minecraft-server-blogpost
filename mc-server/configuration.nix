@@ -3,7 +3,8 @@
 let 
   system = "${modulesPath}/virtualisation/amazon-image.nix";
   watcher = ./watcher/configuration.nix;
-  imports = [ system watcher ];
+  journal-bot = ./journal-bot/configuration.nix;
+  imports = [ system watcher journal-bot ];
 in
 {
   # == system ==

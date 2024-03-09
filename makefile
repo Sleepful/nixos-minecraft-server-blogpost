@@ -20,6 +20,7 @@ mc-builder:
 		--env SSH_AUTH_SOCK="/run/host-services/ssh-auth.sock" \
 		--env SERVER="${MC_IP}" \
 		--env KEYNAME="MCServer" \
+		--env DISCORD_WEBHOOK_URL="${DISCORD_WEBHOOK_URL}" \
 		-v /run/host-services/ssh-auth.sock:/run/host-services/ssh-auth.sock \
 		-it \
 		nixos/builder:arm64 bash
@@ -35,6 +36,7 @@ mc-build:
 		--env SSH_AUTH_SOCK="/run/host-services/ssh-auth.sock" \
 		--env SERVER="${MC_IP}" \
 		--env KEYNAME="MCServer" \
+		--env DISCORD_WEBHOOK_URL="${DISCORD_WEBHOOK_URL}" \
 		-v /run/host-services/ssh-auth.sock:/run/host-services/ssh-auth.sock \
 		-it \
 		nixos/builder:arm64 bash -c "./scripts/build.sh ; bash"
@@ -50,6 +52,7 @@ mc-push:
 		--env SSH_AUTH_SOCK="/run/host-services/ssh-auth.sock" \
 		--env SERVER="${MC_IP}" \
 		--env KEYNAME="MCServer" \
+		--env DISCORD_WEBHOOK_URL="${DISCORD_WEBHOOK_URL}" \
 		-v /run/host-services/ssh-auth.sock:/run/host-services/ssh-auth.sock \
 		-it \
 		nixos/builder:arm64 bash -c "./scripts/push.sh ; bash"
