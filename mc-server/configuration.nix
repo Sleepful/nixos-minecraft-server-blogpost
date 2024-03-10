@@ -8,6 +8,7 @@ let
 in
 {
   # == system ==
+  system.stateVersion = "24.05";
   imports = imports;
   networking.hostName = "MC-Server";
   services.openssh.settings.PasswordAuthentication = false;
