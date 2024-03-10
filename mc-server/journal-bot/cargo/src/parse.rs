@@ -24,6 +24,8 @@ fn filter_noise(msg: &str) -> Option<&str> {
         r"^Preparing level.*",
         r"^Preparing start region.*",
         r"^Time elapsed:.*",
+        r"^ThreadedAnvilChunkStorage.*",
+        r"^Saving chunks for level.*",
     ];
     let res: Vec<bool> = avoid
         .iter()
