@@ -7,6 +7,7 @@ pub fn parse_message(msg: String) -> Option<String> {
     let re = Regex::new(r"minecraft-server.*Server thread.INFO.: (.*)").unwrap();
     let captures = re.captures(&msg)?;
     let message = captures[1].to_string();
+    let message = filter_ip_from_login(message);
     let message = filter_ip(message);
     let message = filter_done(message);
     filter_noise(&message)?;
@@ -37,13 +38,26 @@ fn filter_noise(msg: &str) -> Option<&str> {
 
 // remove IP address from these messages:
 // user[/111.111.111.111:12411] logged in with entity
-fn filter_ip(msg: String) -> String {
+fn filter_ip_from_login(msg: String) -> String {
     let re = Regex::new(r"(.+)\[\/[\d.:]+\] logged in with entity id .+ at (.*)").unwrap();
     let captures = re.captures(&msg);
     match captures.is_none() {
         true => msg,
         false => format!(
             "{} logged in at {}",
+            captures.as_ref().unwrap()[1].to_string(),
+            captures.unwrap()[2].to_string()
+        ),
+    }
+}
+
+fn filter_ip(msg: String) -> String {
+    let re = Regex::new(r"(.+)\/\d+\.\d+\.\d+\.\d+:\d+(.*)").unwrap();
+    let captures = re.captures(&msg);
+    match captures.is_none() {
+        true => msg,
+        false => format!(
+            "{} {}",
             captures.as_ref().unwrap()[1].to_string(),
             captures.unwrap()[2].to_string()
         ),
@@ -81,10 +95,10 @@ mod tests {
     #[test]
     fn filter_ip_test() {
         let msg = "user[/111.111.111.111:12411] logged in with entity id 236 at 7128783078999";
-        let res = filter_ip(msg.to_string());
+        let res = filter_ip_from_login(msg.to_string());
         assert_eq!(res, "user logged in at 7128783078999");
         let msg_no_ip = "Done (17.822s)! For help, type help";
-        let res = filter_ip(msg_no_ip.to_string());
+        let res = filter_ip_from_login(msg_no_ip.to_string());
         assert_eq!(res, msg_no_ip);
     }
     #[test]
